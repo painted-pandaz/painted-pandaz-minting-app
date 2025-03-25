@@ -2,7 +2,7 @@ import './App.css'
 import { PetraWallet } from "petra-plugin-wallet-adapter";
 import { AptosWalletAdapterProvider } from "@aptos-labs/wallet-adapter-react";
 import Header from './components/header';
-import MintingOverlay from './components/MintingOverlay';
+import MobileOptimizedMintingOverlay from './components/MobileOptimizedMintingOverlay';
 
 // Initialize wallet adapters
 const wallets = [new PetraWallet()];
@@ -13,8 +13,12 @@ function App() {
             <div className="app-container">
                 <div className="white-ball-bg"></div>
                 <div className="panda-bg"></div>
-                <Header />
-                <MintingOverlay />
+                <div className="content-container">
+                    <Header />
+                    <div className="minting-container">
+                        <MobileOptimizedMintingOverlay />
+                    </div>
+                </div>
             </div>
         </AptosWalletAdapterProvider>
     );

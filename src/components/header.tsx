@@ -34,14 +34,16 @@ function Header() {
 
     return (
         <header className="header">
-            <img 
-                src="/Painted_Pandaz_logo_black.png" 
-                alt="Painted Pandaz" 
-                className="logo"
-            />
+            <div className="logo-container">
+                <img 
+                    src="/Painted_Pandaz_logo_black.png" 
+                    alt="Painted Pandaz" 
+                    className="logo"
+                />
+            </div>
             
             {connected && account ? (
-                <div style={{ display: 'flex', alignItems: 'center' }}>
+                <div className="wallet-info">
                     <span className="account-display">{truncateAddress(account.address)}</span>
                     <button 
                         className="connect-btn" 

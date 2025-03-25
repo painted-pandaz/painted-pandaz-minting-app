@@ -42,6 +42,24 @@ body {
   z-index: 1;
 }
 
+.content-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+}
+
+.minting-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 /* Background images */
 .white-ball-bg {
   position: absolute;
@@ -121,6 +139,24 @@ body {
 }
 
 @media (max-width: 480px) {
+  body, html, #root, .app-container {
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    position: relative;
+  }
+  
+  .app-container {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .content-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
   .white-ball-bg {
     width: 700px;
     height: 700px;
@@ -129,29 +165,152 @@ body {
   }
   
   .header {
-    padding: 15px 20px;
+    position: relative;
+    height: auto;
+    padding: 10px 20px;
+    min-height: 120px;
+    margin-bottom: 0;
     flex-direction: column;
-    align-items: flex-start;
-    gap: 15px;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+  }
+  
+  .logo-container {
+    margin-bottom: 5px;
+    width: 100%;
+    justify-content: center;
   }
   
   .logo {
-    height: 90px;
+    height: 70px;
     max-width: 80%;
   }
   
+  .connect-btn, :where(.ant-btn).ant-btn-default {
+    padding: 10px 18px;
+    font-size: 14px;
+    width: 100%;
+    max-width: 200px;
+    margin-top: 5px;
+    position: relative;
+  }
+  
+  .account-display {
+    font-size: 12px;
+    text-align: center;
+    margin-right: 0;
+    margin-bottom: 5px;
+    width: 100%;
+  }
+  
+  .header > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .minting-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 0;
+  }
+  
   .minting-overlay {
-    width: 270px;
+    position: relative;
+    transform: none;
+    top: auto;
+    left: auto;
+    margin: 0 auto;
+    width: 90%;
+    max-width: 320px;
     padding: 15px;
+    background-color: rgba(21, 28, 43, 0.97);
+    max-height: none;
+    overflow: visible;
+  }
+  
+  /* Make sure buttons are tappable */
+  .mint-btn, .connect-btn, .amount-btn {
+    touch-action: manipulation;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  
+  .mint-section {
+    margin-bottom: 12px;
+  }
+  
+  .mint-label {
+    font-size: 14px;
+    margin-bottom: 2px;
   }
   
   .mint-value {
-    font-size: 16px;
+    font-size: 18px;
+    margin-top: 2px;
+  }
+  
+  .amount-selector {
+    margin-top: 5px;
+    gap: 10px;
+  }
+  
+  .amount-value {
+    font-size: 18px;
+    width: 30px;
   }
   
   .amount-btn {
-    width: 35px;
-    height: 35px;
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background-color: #111;
+  }
+  
+  .amount-btn:active {
+    transform: scale(0.95);
+    background-color: #333;
+  }
+  
+  .mint-btn {
+    padding: 12px 15px;
+    font-size: 16px;
+    margin: 10px auto 5px;
+    width: 100%;
+    max-width: 280px;
+    font-weight: 700;
+    z-index: 40;
+    color: #000;
+    background-color: var(--primary-color);
+    border-radius: 50px;
+    position: relative;
+    display: block;
+  }
+  
+  .mint-btn:active {
+    transform: scale(0.98);
+    background-color: var(--primary-dark);
+  }
+  
+  .error-message {
+    font-size: 14px;
+    padding: 8px;
+    margin-bottom: 10px;
+  }
+  
+  .wallet-notice {
+    margin-top: 5px;
+    font-size: 14px;
   }
 }
 
@@ -163,13 +322,20 @@ body {
   align-items: flex-start;
   padding: 30px 50px;
   width: 100%;
-  z-index: 20;
+  z-index: 40;
+}
+
+.logo-container {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  max-width: 100%;
 }
 
 .logo {
   height: 240px;
   z-index: 3;
-  max-width: 50%;
+  max-width: 100%;
 }
 
 .connect-btn, :where(.ant-btn).ant-btn-default {
@@ -181,7 +347,7 @@ body {
   font-weight: 600;
   cursor: pointer;
   font-size: 16px;
-  z-index: 3;
+  z-index: 50;
   transition: all 0.2s ease;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
@@ -199,6 +365,12 @@ body {
   font-weight: 500;
 }
 
+.wallet-info {
+  display: flex;
+  align-items: center;
+  z-index: 50;
+}
+
 /* Minting overlay */
 .minting-overlay {
   position: absolute;
@@ -206,13 +378,16 @@ body {
   left: 50%;
   transform: translate(-50%, -50%);
   width: 400px;
-  background-color: rgba(21, 28, 43, 0.85);
+  background-color: rgba(21, 28, 43, 0.95);
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border-radius: 20px;
   padding: 40px;
   text-align: center;
   z-index: 30;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  max-width: 90%;
+  overflow: hidden;
 }
 
 .mint-section {
@@ -248,16 +423,17 @@ body {
   color: white;
   border: 2px solid rgba(255, 255, 255, 0.1);
   font-size: 22px;
-  font-weight: bold;
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.amount-btn:hover {
-  background-color: #1a1a1a;
-  border-color: rgba(255, 255, 255, 0.2);
+.amount-btn:active {
+  background-color: #333;
+  transform: scale(0.95);
 }
 
 .amount-value {
@@ -267,31 +443,37 @@ body {
 }
 
 .mint-btn {
-  width: 100%;
   background-color: var(--primary-color);
   color: #000;
   border: none;
   border-radius: 50px;
-  padding: 16px;
-  font-weight: bold;
-  font-size: 18px;
-  text-transform: uppercase;
+  padding: 15px 30px;
+  font-weight: 700;
   cursor: pointer;
+  font-size: 18px;
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto;
   margin-top: 20px;
   transition: all 0.2s ease;
+  text-transform: uppercase;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  position: relative;
+  z-index: 31;
 }
 
 .mint-btn:hover {
   background-color: var(--primary-dark);
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(242, 201, 76, 0.3);
+  box-shadow: 0 6px 15px rgba(242, 201, 76, 0.4);
 }
 
 .mint-btn:disabled {
-  opacity: 0.6;
+  background-color: #5c5c5c;
+  color: #8d8d8d;
   cursor: not-allowed;
-  background-color: #888;
-  border-color: #666;
+  transform: none;
+  box-shadow: none;
 }
 
 /* Ant Design wallet dropdown overrides */
@@ -328,4 +510,44 @@ body {
   font-size: 14px;
   text-align: center;
   font-weight: 500;
+}
+
+/* Responsive adjustments for the logo */
+@media (max-width: 480px) {
+  .logo-container {
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 10px;
+  }
+}
+
+.minting-overlay.mobile-view {
+  padding: 12px;
+}
+
+.minting-overlay.mobile-view .mint-section {
+  margin-bottom: 8px;
+}
+
+.minting-overlay.mobile-view .mint-label {
+  font-size: 12px;
+  margin-bottom: 0;
+}
+
+.minting-overlay.mobile-view .mint-value {
+  font-size: 16px;
+}
+
+.minting-overlay.mobile-view .amount-selector {
+  margin-top: 2px;
+}
+
+.minting-overlay.mobile-view .amount-btn {
+  width: 36px;
+  height: 36px;
+}
+
+.minting-overlay.mobile-view .mint-btn {
+  margin-top: 8px;
+  padding: 10px;
 }

@@ -24,7 +24,7 @@ interface CollectionConfigData {
     auto_stage_transition?: boolean;
 }
 
-function MintingOverlay() {
+function MobileOptimizedMintingOverlay() {
     const { account, connected, signAndSubmitTransaction } = useWallet();
     const [currentStage, setCurrentStage] = useState<string>("PRESALE");
     const [price, setPrice] = useState<number>(1); // Default price in APT
@@ -112,8 +112,6 @@ function MintingOverlay() {
         
         // Check stage 2 whitelist
         return !!(data.stage_2_whitelist && data.stage_2_whitelist.includes(account.address));
-        
-
     };
 
     // Check if the user has used their free mint from CollectionConfig data
@@ -385,6 +383,7 @@ function MintingOverlay() {
         }
     };
 
+    // Simplified rendering for mobile
     return (
         <div className={`minting-overlay ${isMobile ? 'mobile-view' : ''}`}>
             {error && <div className="error-message">{error}</div>}
@@ -399,6 +398,7 @@ function MintingOverlay() {
                 <div className="mint-value">{totalMinted} / 3333</div>
             </div>
             
+            {/* Only show these sections on desktop */}
             {(currentStage === "PRESALE" || currentStage === "WHITELIST") && !isMobile && (
                 <div className="mint-section">
                     <div className="mint-label">Whitelist Status:</div>
@@ -458,4 +458,4 @@ function MintingOverlay() {
     );
 }
 
-export default MintingOverlay; 
+export default MobileOptimizedMintingOverlay; 
