@@ -6,12 +6,12 @@ function Header() {
     const [isConnecting, setIsConnecting] = useState(false);
     
     // Function to truncate address for display
-    const truncateAddress = (address: string) => {
-        if (!address) return "";
-        const prefix = address.substring(0, 6);
-        const suffix = address.substring(address.length - 4);
-        return `${prefix}...${suffix}`;
-    };
+    // const truncateAddress = (address: string) => {
+    //     if (!address) return "";
+    //     const prefix = address.substring(0, 6);
+    //     const suffix = address.substring(address.length - 4);
+    //     return `${prefix}...${suffix}`;
+    // };
 
     // Connect directly to Petra wallet
     const connectPetra = async () => {
@@ -44,7 +44,6 @@ function Header() {
             
             {connected && account ? (
                 <div className="wallet-info">
-                    <span className="account-display">{truncateAddress(account.address)}</span>
                     <button 
                         className="connect-btn" 
                         onClick={disconnect}
@@ -53,13 +52,15 @@ function Header() {
                     </button>
                 </div>
             ) : (
-                <button 
-                    className="connect-btn" 
-                    onClick={connectPetra}
-                    disabled={isConnecting}
-                >
-                    {isConnecting ? "Connecting..." : "Connect Wallet"}
-                </button>
+                <div className="wallet-info">
+                    <button 
+                        className="connect-btn" 
+                        onClick={connectPetra}
+                        disabled={isConnecting}
+                    >
+                        {isConnecting ? "Connecting..." : "Connect Wallet"}
+                    </button>
+                </div>
             )}
         </header>
     );
