@@ -9,6 +9,7 @@ function MintingComponent() {
     const [amount, setAmount] = useState<number>(1);
     const [isLoading, setIsLoading] = useState(false);
     const [maxAmount] = useState<number>(15);
+    const [hasUsedFreeMint, setHasUsedFreeMint] = useState(false);
 
     const config = new AptosConfig({ network: Network.MAINNET });
     const aptos = new Aptos(config);
@@ -34,6 +35,12 @@ function MintingComponent() {
             } else {
                 setCurrentStage("PUBLIC");
                 setPrice(1.5);
+            }
+
+            if (account && resource.data.stage_1_free_mint_used) {
+                const freeMintUsed = resource.data.stage_1_free_mint_used.includes(account.address);
+                setHasUsedFreeMint(freeMintUsed);
+                console.log("User has used free mint:", freeMintUsed);
             }
         } catch (error) {
             console.error("Error fetching minting state:", error);
@@ -61,6 +68,11 @@ function MintingComponent() {
     const mintNFT = async () => {
         if (!account) return;
 
+        if (currentStage === "WHITELIST" && amount > 1 && !hasUsedFreeMint) {
+            alert("You can only mint one NFT for free. Please adjust your quantity to 1.");
+            return;
+        }
+
         setIsLoading(true);
         try {
             const transaction: InputTransactionData = {
@@ -68,7 +80,7 @@ function MintingComponent() {
                     function: `${CONTRACT_ADDRESS}::painted_pandaz_mint::bulk_mint`,
                     typeArguments: [],
                     functionArguments: [
-                        false,
+                        currentStage === "WHITELIST" && amount === 1 && !hasUsedFreeMint,
                         CONTRACT_ADDRESS,
                         amount
                     ]
@@ -81,6 +93,9 @@ function MintingComponent() {
             console.log(`${amount} NFTs Minted Successfully!`);
             alert(`${amount} NFT${amount > 1 ? 's' : ''} minted successfully!`);
             
+            if (currentStage === "WHITELIST" && amount === 1 && !hasUsedFreeMint) {
+                setHasUsedFreeMint(true);
+            }
         } catch (error) {
             console.error("Error minting NFTs:", error);
             alert("Failed to mint NFTs. Please try again.");

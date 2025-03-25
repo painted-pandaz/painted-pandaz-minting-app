@@ -25,7 +25,7 @@ interface CollectionConfigData {
 
 function MobileOptimizedMintingOverlay() {
     const { account, connected, signAndSubmitTransaction } = useWallet();
-    const [currentStage, setCurrentStage] = useState<string>("PRESALE");
+    const [currentStage, setCurrentStage] = useState<string>("WHITELIST");
     const [price, setPrice] = useState<number>(1); // Default price in APT
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -219,7 +219,7 @@ function MobileOptimizedMintingOverlay() {
     };
 
     // Use bulk mint function instead of individual mints
-    const mintBulkNFTs = async (isFree: boolean) => {
+    const mintBulkNFTs = async () => {
         try {
             // The bulk_mint function expects four parameters:
             // 1. account (handled by the wallet adapter)
@@ -231,7 +231,7 @@ function MobileOptimizedMintingOverlay() {
                     function: `${CONTRACT_ADDRESS}::painted_pandaz_mint::bulk_mint`,
                     typeArguments: [],
                     functionArguments: [
-                        isFree, 
+                        currentStage === "WHITELIST" && quantity === 1 && !hasUsedFreeMint,  // true only for first NFT in WHITELIST stage if free mint not used
                         CONTRACT_ADDRESS,
                         quantity
                     ]
@@ -261,14 +261,19 @@ function MobileOptimizedMintingOverlay() {
         }
 
         // Check if user is whitelisted for the current stage
-        if ((currentStage === "PRESALE" || currentStage === "WHITELIST") && !isWhitelisted) {
+        if (currentStage === "WHITELIST" && !isWhitelisted) {
             setError("You are not whitelisted for this stage");
             return;
         }
         
+        // Check if user is trying to mint more than one NFT with free mint
+        if (currentStage === "WHITELIST" && quantity > 1) {
+            setError("You can only mint one NFT for free. Please adjust your quantity to 1.");
+            return;
+        }
+        
         // Check if the user has reached the max mints for the whitelist
-        if ((currentStage === "PRESALE" || currentStage === "WHITELIST") && 
-            userMintCount + quantity > MAX_WHITELIST_MINTS) {
+        if (currentStage === "WHITELIST" && userMintCount + quantity > MAX_WHITELIST_MINTS) {
             setError(`You can only mint ${MAX_WHITELIST_MINTS - userMintCount} more NFTs in this stage`);
             return;
         }
@@ -285,9 +290,9 @@ function MobileOptimizedMintingOverlay() {
         try {
             // For free mints in presale, we can only use a single free mint
             // So if quantity > 1 and free mint is available, we need to handle this specially
-            if (currentStage === "PRESALE" && !hasUsedFreeMint && quantity > 1) {
+            if (currentStage === "WHITELIST" && !hasUsedFreeMint && quantity > 1) {
                 // First mint a single free NFT
-                await mintBulkNFTs(true); // Use the free mint for 1 NFT
+                await mintBulkNFTs(); // Use the free mint for 1 NFT
                 setHasUsedFreeMint(true);
                 
                 // Then mint the rest as paid NFTs (quantity-1)
@@ -297,7 +302,7 @@ function MobileOptimizedMintingOverlay() {
                     
                     // Temporarily set quantity to the remaining amount
                     setQuantity(remainingQuantity);
-                    await mintBulkNFTs(false); // Paid mint for remaining NFTs
+                    await mintBulkNFTs(); // Paid mint for remaining NFTs
                     // Restore the original quantity
                     setQuantity(quantity);
                 }
@@ -305,9 +310,9 @@ function MobileOptimizedMintingOverlay() {
                 setUserMintCount(prevCount => prevCount + quantity);
             } else {
                 // Normal case - either all paid mints or a single free mint
-                const isFree = currentStage === "PRESALE" && !hasUsedFreeMint && quantity === 1;
+                const isFree = currentStage === "WHITELIST" && !hasUsedFreeMint && quantity === 1;
                 
-                await mintBulkNFTs(isFree);
+                await mintBulkNFTs();
                 
                 if (isFree) {
                     setHasUsedFreeMint(true);
@@ -330,14 +335,14 @@ function MobileOptimizedMintingOverlay() {
 
     // Calculate the total price based on quantity and stage
     const calculateTotalPrice = () => {
-        if (currentStage === "PRESALE") {
-            // In presale, first mint is free (if not used), rest are 1 APT
+        if (currentStage === "WHITELIST") {
+            // In WHITELIST stage, first mint is free (if not used), rest are 1 APT
             if (!hasUsedFreeMint && quantity > 0) {
-                return (quantity - 1); // One free, rest at 1 APT
+                return Math.max(0, quantity - 1); // One free, rest at 1 APT
             } else {
                 return quantity; // All at 1 APT
             }
-        } else if (currentStage === "WHITELIST") {
+        } else if (currentStage === "EARLY BIRD") {
             return quantity * price;
         } else {
             return quantity * price;
@@ -360,7 +365,7 @@ function MobileOptimizedMintingOverlay() {
             </div>
             
             {/* Only show these sections on desktop */}
-            {(currentStage === "PRESALE" || currentStage === "WHITELIST") && !isMobile && (
+            {(currentStage === "WHITELIST") && !isMobile && (
                 <div className="mint-section">
                     <div className="mint-label">Whitelist Status:</div>
                     <div className="mint-value">
@@ -376,7 +381,7 @@ function MobileOptimizedMintingOverlay() {
                 </div>
             )}
             
-            {currentStage === "PRESALE" && isWhitelisted && !isMobile && (
+            {currentStage === "WHITELIST" && isWhitelisted && !isMobile && (
                 <div className="mint-section">
                     <div className="mint-label">Free Mint:</div>
                     <div className="mint-value">
@@ -407,8 +412,8 @@ function MobileOptimizedMintingOverlay() {
                     !connected || 
                     !account || 
                     !contractVerified || 
-                    ((currentStage === "PRESALE" || currentStage === "WHITELIST") && !isWhitelisted) ||
-                    ((currentStage === "PRESALE" || currentStage === "WHITELIST") && userMintCount >= MAX_WHITELIST_MINTS) ||
+                    (currentStage === "WHITELIST" && !isWhitelisted) ||
+                    (currentStage === "WHITELIST" && userMintCount >= MAX_WHITELIST_MINTS) ||
                     currentStage === "NOT LAUNCHED YET"
                 }
             >
