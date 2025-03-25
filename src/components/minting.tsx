@@ -22,15 +22,18 @@ function MintingComponent() {
                 resourceType: `${CONTRACT_ADDRESS}::painted_pandaz_mint::CollectionConfig`,
             });
 
-            if (resource.data.current_stage === 1) {
+            if (resource.data.current_stage === 0) {
+                setCurrentStage("NOT LAUNCHED YET");
+                setPrice(1000);
+            } else if (resource.data.current_stage === 1) {
                 setCurrentStage("PRESALE");
                 setPrice(0);
             } else if (resource.data.current_stage === 2) {
                 setCurrentStage("WHITELIST");
-                setPrice(Number(resource.data.stage_2_price) / 100000000);
+                setPrice(1);
             } else {
                 setCurrentStage("PUBLIC");
-                setPrice(Number(resource.data.public_price) / 100000000);
+                setPrice(1.5);
             }
         } catch (error) {
             console.error("Error fetching minting state:", error);
@@ -127,7 +130,7 @@ function MintingComponent() {
             {/* Mint Button */}
             <button
                 onClick={mintNFT}
-                disabled={isLoading || !account}
+                disabled={isLoading || !account || currentStage === "NOT LAUNCHED YET"}
                 className="mint-btn uppercase"
             >
                 {isLoading ? "MINTING..." : `MINT ${amount} NFT${amount > 1 ? 'S' : ''}`}

@@ -424,7 +424,8 @@ function MobileOptimizedMintingOverlay() {
                     !account || 
                     !contractVerified || 
                     ((currentStage === "PRESALE" || currentStage === "WHITELIST") && !isWhitelisted) ||
-                    ((currentStage === "PRESALE" || currentStage === "WHITELIST") && userMintCount >= MAX_WHITELIST_MINTS)
+                    ((currentStage === "PRESALE" || currentStage === "WHITELIST") && userMintCount >= MAX_WHITELIST_MINTS) ||
+                    currentStage === "NOT LAUNCHED YET"
                 }
             >
                 {isLoading ? "MINTING..." : `MINT ${quantity} NFT${quantity > 1 ? 's' : ''}`}
