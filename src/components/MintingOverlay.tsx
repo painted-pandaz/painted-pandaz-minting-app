@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { InputTransactionData, useWallet } from "@aptos-labs/wallet-adapter-react";
 import { Aptos, AptosConfig, Network } from "@aptos-labs/ts-sdk";
 
-// Define an interface for the contract resource data structure
 interface CollectionConfigData {
     current_stage?: number;
     stage_1_minted?: number | string;
@@ -35,23 +34,18 @@ function MintingOverlay() {
     const [isWhitelisted, setIsWhitelisted] = useState(false);
     const [hasUsedFreeMint, setHasUsedFreeMint] = useState(false);
     const [userMintCount, setUserMintCount] = useState(0);
-    // Add mint quantity state
     const [quantity, setQuantity] = useState<number>(1);
     const maxQuantity = 15; // Updated to match MAX_MINT_PER_TX from the contract
     const [isMobile, setIsMobile] = useState(false);
     
-    // Constants from contract
     const MAX_WHITELIST_MINTS = 20;
     const MAX_MINT_PER_TX = 15; // Maximum number of tokens that can be minted in a single transaction
 
-    // Initialize Aptos client
     const config = new AptosConfig({ network: Network.TESTNET }); // or MAINNET
     const aptos = new Aptos(config);
 
-    // Make sure this matches your deployed contract address
     const CONTRACT_ADDRESS = "0xf874c12fbdb28b443037966c900159a3f3b58f046d3400632be4a6c17d7e664b";
     
-    // Check if the device is mobile
     useEffect(() => {
         const checkIfMobile = () => {
             setIsMobile(window.innerWidth <= 480);
@@ -65,20 +59,16 @@ function MintingOverlay() {
         };
     }, []);
 
-    // Check if the contract address exists and has modules
     const verifyContractExists = async () => {
         try {
             console.log("Verifying contract at address:", CONTRACT_ADDRESS);
             
-            // First check if the account exists
             const accountInfo = await aptos.getAccountInfo({ accountAddress: CONTRACT_ADDRESS });
             console.log("Account info:", accountInfo);
             
-            // Get the account modules to see what's deployed there
             const modules = await aptos.getAccountModules({ accountAddress: CONTRACT_ADDRESS });
             console.log("Available modules:", modules.length);
             
-            // Check for our specific module
             const paintedPandazModule = modules.find(
                 (module) => module.abi?.name === "painted_pandaz_mint"
             );
@@ -101,28 +91,23 @@ function MintingOverlay() {
         }
     };
 
-    // Check if the current user is whitelisted
     const checkIfWhitelisted = (data: CollectionConfigData) => {
         if (!account) return false;
         
-        // Check stage 1 whitelist
         if (data.stage_1_whitelist && data.stage_1_whitelist.includes(account.address)) {
             return true;
         }
         
-        // Check stage 2 whitelist
         return !!(data.stage_2_whitelist && data.stage_2_whitelist.includes(account.address));
         
 
     };
 
-    // Check if the user has used their free mint from CollectionConfig data
     const checkFreeMintStatus = (data: CollectionConfigData) => {
         if (!account) return false;
         
         console.log("Checking free mint status from resource data");
         
-        // Check if the user's address is in stage_1_free_mint_used list
         if (data.stage_1_free_mint_used && data.stage_1_free_mint_used.includes(account.address)) {
             console.log("User has used their free mint");
             return true;
@@ -132,14 +117,12 @@ function MintingOverlay() {
         return false;
     };
 
-    // Check user's mint count from CollectionConfig data
     const getUserMintCount = (data: CollectionConfigData) => {
         if (!account) return 0;
         
         console.log("Getting user mint count from resource data");
         
-        // Find the user's address in stage_1_mints_per_address and get corresponding count
-        if (data.stage_1_mints_per_address && data.stage_1_mints_count && 
+        if (data.stage_1_mints_per_address && data.stage_1_mints_count &&
             data.stage_1_mints_per_address.length === data.stage_1_mints_count.length) {
             
             const index = data.stage_1_mints_per_address.findIndex(addr => addr === account.address);
@@ -160,7 +143,6 @@ function MintingOverlay() {
         try {
             setError(null);
             
-            // Verify contract exists before trying to fetch resource
             const verified = await verifyContractExists();
             if (!verified) {
                 return;
@@ -168,14 +150,12 @@ function MintingOverlay() {
             
             console.log("Fetching resources from contract:", CONTRACT_ADDRESS);
             
-            // Get all resources directly
             const allResources = await aptos.getAccountResources({
                 accountAddress: CONTRACT_ADDRESS
             });
             
             console.log("All available resources:", allResources);
             
-            // Find the CollectionConfig resource
             const collectionConfigResource = allResources.find(
                 (resource) => resource.type.includes("::painted_pandaz_mint::CollectionConfig")
             );
@@ -186,32 +166,27 @@ function MintingOverlay() {
             
             console.log("Found CollectionConfig resource:", collectionConfigResource);
             
-            // Access the data directly
             const data = collectionConfigResource.data as CollectionConfigData;
             console.log("Collection config data:", data);
             
-            // Check if user is whitelisted
             const whitelist = checkIfWhitelisted(data);
             setIsWhitelisted(whitelist);
             console.log("User is whitelisted:", whitelist);
             
-            // Check if user has used free mint
             const usedFreeMint = checkFreeMintStatus(data);
             setHasUsedFreeMint(usedFreeMint);
             console.log("User has used free mint:", usedFreeMint);
             
-            // Get user mint count
             const mintCount = getUserMintCount(data);
             setUserMintCount(mintCount);
             console.log("User mint count:", mintCount);
             
-            // Update state with the contract data
             if (data.current_stage !== undefined) {
                 const stageValue = Number(data.current_stage);
                 
                 if (stageValue === 1) {
                     setCurrentStage("WHITELIST");
-                    setPrice(0); // Free for whitelist (first mint only)
+                    setPrice(0);
                 } else if (stageValue === 2) {
                     setCurrentStage("EARLY BIRD");
                     setPrice(1);
@@ -220,12 +195,10 @@ function MintingOverlay() {
                     setPrice(1.5);
                 }
             } else {
-                // Default to PUBLIC if stage not found
                 setCurrentStage("PUBLIC");
                 setPrice(1.5);
             }
             
-            // Update total minted
             if (data.total_minted !== undefined) {
                 setTotalMinted(Number(data.total_minted));
             }
@@ -235,9 +208,8 @@ function MintingOverlay() {
         } catch (error) {
             console.error("Error fetching minting state:", error);
             setError("Failed to fetch minting state. Check console for details.");
-            // Set default values in case of error
             setCurrentStage("PUBLIC");
-            setPrice(1.5); // Default to 1.5 APT for public sale
+            setPrice(1.5);
         }
     };
 
@@ -245,7 +217,6 @@ function MintingOverlay() {
         fetchMintingState();
     }, [account, connected]);
 
-    // Add quantity adjustment functions
     const decreaseQuantity = () => {
         if (quantity > 1) {
             setQuantity(quantity - 1);

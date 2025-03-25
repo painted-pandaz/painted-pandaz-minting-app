@@ -4,7 +4,6 @@ import { AptosWalletAdapterProvider } from "@aptos-labs/wallet-adapter-react";
 import Header from './components/header';
 import MobileOptimizedMintingOverlay from './components/MobileOptimizedMintingOverlay';
 
-// Initialize wallet adapters
 const wallets = [new PetraWallet()];
 
 function App() {

@@ -13,7 +13,6 @@ function Header() {
     //     return `${prefix}...${suffix}`;
     // };
 
-    // Connect directly to Petra wallet
     const connectPetra = async () => {
         const petraWallet = wallets.find(wallet => wallet.name === "Petra");
         if (petraWallet) {

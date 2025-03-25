@@ -5,13 +5,12 @@ import { useEffect, useState } from "react";
 function MintingComponent() {
     const { account, signAndSubmitTransaction } = useWallet();
     const [currentStage, setCurrentStage] = useState<string>("PRESALE");
-    const [price, setPrice] = useState<number>(1); // Default price in APT
-    const [amount, setAmount] = useState<number>(1); // Default amount to 1
+    const [price, setPrice] = useState<number>(1);
+    const [amount, setAmount] = useState<number>(1);
     const [isLoading, setIsLoading] = useState(false);
-    const [maxAmount] = useState<number>(15); // Maximum tokens a user can mint per transaction
+    const [maxAmount] = useState<number>(15);
 
-    // Initialize Aptos client
-    const config = new AptosConfig({ network: Network.MAINNET }); // or MAINNET
+    const config = new AptosConfig({ network: Network.MAINNET });
     const aptos = new Aptos(config);
 
     const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS;
@@ -23,16 +22,15 @@ function MintingComponent() {
                 resourceType: `${CONTRACT_ADDRESS}::painted_pandaz_mint::CollectionConfig`,
             });
 
-            // Set stage name based on current_stage value
             if (resource.data.current_stage === 1) {
                 setCurrentStage("PRESALE");
-                setPrice(0); // Free for whitelist
+                setPrice(0);
             } else if (resource.data.current_stage === 2) {
                 setCurrentStage("WHITELIST");
-                setPrice(Number(resource.data.stage_2_price) / 100000000); // Convert from Octas to APT
+                setPrice(Number(resource.data.stage_2_price) / 100000000);
             } else {
                 setCurrentStage("PUBLIC");
-                setPrice(Number(resource.data.public_price) / 100000000); // Convert from Octas to APT
+                setPrice(Number(resource.data.public_price) / 100000000);
             }
         } catch (error) {
             console.error("Error fetching minting state:", error);
@@ -62,15 +60,14 @@ function MintingComponent() {
 
         setIsLoading(true);
         try {
-            // Use the bulk_mint function with the selected amount
             const transaction: InputTransactionData = {
                 data: {
                     function: `${CONTRACT_ADDRESS}::painted_pandaz_mint::bulk_mint`,
                     typeArguments: [],
                     functionArguments: [
-                        false, // is_free_mint (we default to paid in this UI)
+                        false,
                         CONTRACT_ADDRESS,
-                        amount // Pass the amount to mint
+                        amount
                     ]
                 }
             };

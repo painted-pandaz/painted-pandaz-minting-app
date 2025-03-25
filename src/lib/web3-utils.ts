@@ -1,13 +1,11 @@
 import {ethers} from 'ethers';
 
-// Declare ethereum type on window
 declare global {
   interface Window {
     ethereum?: any;
   }
 }
 
-// Contract ABI for the NFT minting functions
 export const PAINTED_PANDAZ_ABI = [
   {
     "inputs": [
