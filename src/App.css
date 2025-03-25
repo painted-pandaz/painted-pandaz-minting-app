@@ -1,0 +1,331 @@
+:root {
+  --primary-color: #F2C94C;
+  --primary-dark: #DDB73E;
+  --background-dark: #000000;
+  --text-color: #FFFFFF;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  color: var(--text-color);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--background-dark);
+  color: var(--text-color);
+  overflow-x: hidden;
+  min-height: 100vh;
+  min-width: 100vw;
+  height: 100vh;
+  width: 100vw;
+}
+
+#root {
+  height: 100%;
+  width: 100%;
+}
+
+.app-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* Background images */
+.white-ball-bg {
+  position: absolute;
+  top: -500px;
+  left: -500px;
+  width: 1550px;
+  height: 1550px;
+  background-image: url('/Painted_Pandaz_white_ball.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.panda-bg {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 80%;
+  height: 100%;
+  background-image: url('/Painted_Pandaz_bg.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: right center;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .white-ball-bg {
+    width: 1400px;
+    height: 1400px;
+    top: -440px;
+    left: -440px;
+  }
+  
+  .header {
+    padding: 25px 40px;
+  }
+  
+  .logo {
+    height: 210px;
+  }
+}
+
+@media (max-width: 768px) {
+  .white-ball-bg {
+    width: 1000px;
+    height: 1000px;
+    top: -300px;
+    left: -300px;
+  }
+  
+  .header {
+    padding: 20px 30px;
+  }
+  
+  .logo {
+    height: 150px;
+  }
+  
+  .connect-btn, :where(.ant-btn).ant-btn-default {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+  
+  .account-display {
+    font-size: 14px;
+    margin-right: 10px;
+  }
+  
+  .minting-overlay {
+    width: 300px;
+    padding: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .white-ball-bg {
+    width: 700px;
+    height: 700px;
+    top: -240px;
+    left: -240px;
+  }
+  
+  .header {
+    padding: 15px 20px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  .logo {
+    height: 90px;
+    max-width: 80%;
+  }
+  
+  .minting-overlay {
+    width: 270px;
+    padding: 15px;
+  }
+  
+  .mint-value {
+    font-size: 16px;
+  }
+  
+  .amount-btn {
+    width: 35px;
+    height: 35px;
+  }
+}
+
+/* Header */
+.header {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 30px 50px;
+  width: 100%;
+  z-index: 20;
+}
+
+.logo {
+  height: 240px;
+  z-index: 3;
+  max-width: 50%;
+}
+
+.connect-btn, :where(.ant-btn).ant-btn-default {
+  background-color: var(--primary-color);
+  color: #000;
+  border: none;
+  border-radius: 50px;
+  padding: 12px 24px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 16px;
+  z-index: 3;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.connect-btn:hover, :where(.ant-btn).ant-btn-default:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(242, 201, 76, 0.3);
+}
+
+.account-display {
+  color: #fff;
+  font-size: 16px;
+  margin-right: 15px;
+  font-weight: 500;
+}
+
+/* Minting overlay */
+.minting-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px;
+  background-color: rgba(21, 28, 43, 0.85);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 40px;
+  text-align: center;
+  z-index: 30;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.mint-section {
+  margin-bottom: 30px;
+}
+
+.mint-label {
+  color: #8D8D8D;
+  font-size: 16px;
+  margin-bottom: 8px;
+  text-align: left;
+  font-weight: 500;
+}
+
+.mint-value {
+  font-weight: bold;
+  font-size: 24px;
+  text-align: center;
+}
+
+.amount-selector {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 15px;
+}
+
+.amount-btn {
+  width: 45px;
+  height: 45px;
+  border-radius: 8px;
+  background-color: #000;
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  font-size: 22px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.amount-btn:hover {
+  background-color: #1a1a1a;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.amount-value {
+  width: 80px;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.mint-btn {
+  width: 100%;
+  background-color: var(--primary-color);
+  color: #000;
+  border: none;
+  border-radius: 50px;
+  padding: 16px;
+  font-weight: bold;
+  font-size: 18px;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: all 0.2s ease;
+}
+
+.mint-btn:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(242, 201, 76, 0.3);
+}
+
+.mint-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: #888;
+  border-color: #666;
+}
+
+/* Ant Design wallet dropdown overrides */
+.ant-dropdown {
+  z-index: 1000;
+}
+
+.ant-dropdown-menu {
+  background-color: #1a1a1a !important;
+  border: 1px solid #333;
+}
+
+.ant-dropdown-menu-item {
+  color: white !important;
+}
+
+.ant-dropdown-menu-item:hover {
+  background-color: #333 !important;
+}
+
+.error-message {
+  background-color: rgba(220, 53, 69, 0.9);
+  color: white;
+  padding: 10px 15px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.wallet-notice {
+  margin-top: 15px;
+  color: #f8d86a;
+  font-size: 14px;
+  text-align: center;
+  font-weight: 500;
+}
