@@ -184,9 +184,12 @@ function MobileOptimizedMintingOverlay() {
             if (data.current_stage !== undefined) {
                 const stageValue = Number(data.current_stage);
                 
-                if (stageValue === 1) {
+                if (stageValue === 0) {
+                    setCurrentStage("NOT LAUNCHED YET");
+                    setPrice(1000);
+                } else if (stageValue === 1) {
                     setCurrentStage("WHITELIST");
-                    setPrice(0); // Free for whitelist (first mint only)
+                    setPrice(0);
                 } else if (stageValue === 2) {
                     setCurrentStage("EARLY BIRD");
                     setPrice(1);
