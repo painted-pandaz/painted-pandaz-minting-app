@@ -14,7 +14,7 @@ function MintingComponent() {
     const config = new AptosConfig({ network: Network.TESTNET }); // or MAINNET
     const aptos = new Aptos(config);
 
-    const CONTRACT_ADDRESS = "0x568bc186302a17baf0f86ab63bb7de7ad68717a9129241301503886f4c0ea0c2";
+    const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS;
 
     const fetchMintingState = async () => {
         try {
