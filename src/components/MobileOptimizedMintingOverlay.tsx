@@ -41,7 +41,7 @@ function MobileOptimizedMintingOverlay() {
     const MAX_WHITELIST_MINTS = 20;
     const MAX_MINT_PER_TX = 15;
 
-    const config = new AptosConfig({ network: Network.TESTNET }); // or MAINNET
+    const config = new AptosConfig({ network: Network.MAINNET });
     const aptos = new Aptos(config);
 
     const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS;
