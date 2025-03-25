@@ -21,7 +21,6 @@ function MintingComponent() {
                 accountAddress: CONTRACT_ADDRESS,
                 resourceType: `${CONTRACT_ADDRESS}::painted_pandaz_mint::CollectionConfig`,
             });
-            console.log('RESOURCE: '+ resource)
 
             if (resource.data.current_stage === 0) {
                 setCurrentStage("NOT LAUNCHED YET");

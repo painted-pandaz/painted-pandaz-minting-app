@@ -61,20 +61,14 @@ function MintingOverlay() {
 
     const verifyContractExists = async () => {
         try {
-            console.log("Verifying contract at address:", CONTRACT_ADDRESS);
-            
-            const accountInfo = await aptos.getAccountInfo({ accountAddress: CONTRACT_ADDRESS });
-            console.log("Account info:", accountInfo);
-            
+
             const modules = await aptos.getAccountModules({ accountAddress: CONTRACT_ADDRESS });
-            console.log("Available modules:", modules.length);
-            
+
             const paintedPandazModule = modules.find(
                 (module) => module.abi?.name === "painted_pandaz_mint"
             );
             
             if (paintedPandazModule) {
-                console.log("Found painted_pandaz_mint module:", paintedPandazModule);
                 setContractVerified(true);
                 return true;
             } else {
@@ -106,34 +100,28 @@ function MintingOverlay() {
     const checkFreeMintStatus = (data: CollectionConfigData) => {
         if (!account) return false;
         
-        console.log("Checking free mint status from resource data");
-        
+
         if (data.stage_1_free_mint_used && data.stage_1_free_mint_used.includes(account.address)) {
-            console.log("User has used their free mint");
             return true;
         }
         
-        console.log("User has not used their free mint");
         return false;
     };
 
     const getUserMintCount = (data: CollectionConfigData) => {
         if (!account) return 0;
         
-        console.log("Getting user mint count from resource data");
-        
+
         if (data.stage_1_mints_per_address && data.stage_1_mints_count &&
             data.stage_1_mints_per_address.length === data.stage_1_mints_count.length) {
             
             const index = data.stage_1_mints_per_address.findIndex(addr => addr === account.address);
             if (index !== -1) {
                 const count = Number(data.stage_1_mints_count[index]);
-                console.log("User mint count from resource:", count);
                 return count;
             }
         }
         
-        console.log("User mint count not found, defaulting to 0");
         return 0;
     };
 
@@ -148,14 +136,12 @@ function MintingOverlay() {
                 return;
             }
             
-            console.log("Fetching resources from contract:", CONTRACT_ADDRESS);
-            
+
             const allResources = await aptos.getAccountResources({
                 accountAddress: CONTRACT_ADDRESS
             });
             
-            console.log("All available resources:", allResources);
-            
+
             const collectionConfigResource = allResources.find(
                 (resource) => resource.type.includes("::painted_pandaz_mint::CollectionConfig")
             );
@@ -164,23 +150,18 @@ function MintingOverlay() {
                 throw new Error("CollectionConfig resource not found");
             }
             
-            console.log("Found CollectionConfig resource:", collectionConfigResource);
-            
+
             const data = collectionConfigResource.data as CollectionConfigData;
-            console.log("Collection config data:", data);
-            
+
             const whitelist = checkIfWhitelisted(data);
             setIsWhitelisted(whitelist);
-            console.log("User is whitelisted:", whitelist);
-            
+
             const usedFreeMint = checkFreeMintStatus(data);
             setHasUsedFreeMint(usedFreeMint);
-            console.log("User has used free mint:", usedFreeMint);
-            
+
             const mintCount = getUserMintCount(data);
             setUserMintCount(mintCount);
-            console.log("User mint count:", mintCount);
-            
+
             if (data.current_stage !== undefined) {
                 const stageValue = Number(data.current_stage);
                 
@@ -253,7 +234,6 @@ function MintingOverlay() {
             const response = await signAndSubmitTransaction(transaction);
             await aptos.waitForTransaction({ transactionHash: response.hash });
             
-            console.log(`${quantity} NFTs Minted Successfully!`);
             return true;
         } catch (error) {
             console.error("Error minting NFTs:", error);
