@@ -11,7 +11,7 @@ function MintingComponent() {
     const [maxAmount] = useState<number>(15); // Maximum tokens a user can mint per transaction
 
     // Initialize Aptos client
-    const config = new AptosConfig({ network: Network.TESTNET }); // or MAINNET
+    const config = new AptosConfig({ network: Network.MAINNET }); // or MAINNET
     const aptos = new Aptos(config);
 
     const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS;
