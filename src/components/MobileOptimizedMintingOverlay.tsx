@@ -37,7 +37,9 @@ function MobileOptimizedMintingOverlay() {
     const [quantity, setQuantity] = useState<number>(1);
     const maxQuantity = 15;
     const [isMobile, setIsMobile] = useState(false);
+    const [isProjectWallet, setIsProjectWallet] = useState(false);
     
+    const PROJECT_WALLET = import.meta.env.VITE_PROJECT_WALLET;
     const MAX_WHITELIST_MINTS = 20;
     const MAX_MINT_PER_TX = 15;
 
@@ -58,6 +60,15 @@ function MobileOptimizedMintingOverlay() {
             window.removeEventListener('resize', checkIfMobile);
         };
     }, []);
+
+    // Check if connected wallet is project wallet
+    useEffect(() => {
+        if (connected && account) {
+            setIsProjectWallet(account.address === PROJECT_WALLET);
+        } else {
+            setIsProjectWallet(false);
+        }
+    }, [account, connected]);
 
     const verifyContractExists = async () => {
         try {
@@ -88,6 +99,11 @@ function MobileOptimizedMintingOverlay() {
     const checkIfWhitelisted = (data: CollectionConfigData) => {
         if (!account) return false;
         
+        // Project wallet is always considered whitelisted
+        if (account.address === PROJECT_WALLET) {
+            return true;
+        }
+        
         if (data.stage_1_whitelist && data.stage_1_whitelist.includes(account.address)) {
             return true;
         }
@@ -98,6 +114,10 @@ function MobileOptimizedMintingOverlay() {
     const checkFreeMintStatus = (data: CollectionConfigData) => {
         if (!account) return false;
         
+        // Project wallet always has free mint available during whitelist
+        if (account.address === PROJECT_WALLET) {
+            return false;
+        }
 
         if (data.stage_1_free_mint_used && data.stage_1_free_mint_used.includes(account.address)) {
             return true;
@@ -226,12 +246,16 @@ function MobileOptimizedMintingOverlay() {
             // 2. is_free_mint (boolean) - true for free mint in stage 1
             // 3. owner_addr (address) - the contract address
             // 4. amount (u64) - number of NFTs to mint
+            
+            // Special case for project wallet during whitelist - always free
+            const isFreeForProjectWallet = isProjectWallet && currentStage === "WHITELIST";
+            
             const transaction: InputTransactionData = {
                 data: {
                     function: `${CONTRACT_ADDRESS}::painted_pandaz_mint::bulk_mint`,
                     typeArguments: [],
                     functionArguments: [
-                        currentStage === "WHITELIST" && quantity === 1 && !hasUsedFreeMint,  // true only for first NFT in WHITELIST stage if free mint not used
+                        isFreeForProjectWallet || (currentStage === "WHITELIST" && quantity === 1 && !hasUsedFreeMint),
                         CONTRACT_ADDRESS,
                         quantity
                     ]
@@ -261,19 +285,21 @@ function MobileOptimizedMintingOverlay() {
         }
 
         // Check if user is whitelisted for the current stage
-        if (currentStage === "WHITELIST" && !isWhitelisted) {
+        if (currentStage === "WHITELIST" && !isWhitelisted && !isProjectWallet) {
             setError("You are not whitelisted for this stage");
             return;
         }
         
         // Check if user is trying to mint more than one NFT with free mint
-        if (currentStage === "WHITELIST" && quantity > 1) {
+        // Project wallet can mint multiple NFTs for free during whitelist
+        if (currentStage === "WHITELIST" && quantity > 1 && !isProjectWallet) {
             setError("You can only mint one NFT for free. Please adjust your quantity to 1.");
             return;
         }
         
         // Check if the user has reached the max mints for the whitelist
-        if (currentStage === "WHITELIST" && userMintCount + quantity > MAX_WHITELIST_MINTS) {
+        // Skip this check for project wallet
+        if (currentStage === "WHITELIST" && !isProjectWallet && userMintCount + quantity > MAX_WHITELIST_MINTS) {
             setError(`You can only mint ${MAX_WHITELIST_MINTS - userMintCount} more NFTs in this stage`);
             return;
         }
@@ -288,9 +314,14 @@ function MobileOptimizedMintingOverlay() {
         setError(null);
         
         try {
+            // Special case for project wallet - can always mint for free during whitelist
+            if (isProjectWallet && currentStage === "WHITELIST") {
+                await mintBulkNFTs();
+                setUserMintCount(prevCount => prevCount + quantity);
+            }
             // For free mints in presale, we can only use a single free mint
             // So if quantity > 1 and free mint is available, we need to handle this specially
-            if (currentStage === "WHITELIST" && !hasUsedFreeMint && quantity > 1) {
+            else if (currentStage === "WHITELIST" && !hasUsedFreeMint && quantity > 1) {
                 // First mint a single free NFT
                 await mintBulkNFTs(); // Use the free mint for 1 NFT
                 setHasUsedFreeMint(true);
@@ -335,6 +366,11 @@ function MobileOptimizedMintingOverlay() {
 
     // Calculate the total price based on quantity and stage
     const calculateTotalPrice = () => {
+        // Project wallet mints for free during whitelist
+        if (isProjectWallet && currentStage === "WHITELIST") {
+            return 0;
+        }
+        
         if (currentStage === "WHITELIST") {
             // In WHITELIST stage, first mint is free (if not used), rest are 1 APT
             if (!hasUsedFreeMint && quantity > 0) {
@@ -364,8 +400,16 @@ function MobileOptimizedMintingOverlay() {
                 <div className="mint-value">{totalMinted} / 3333</div>
             </div>
             
-            {/* Only show these sections on desktop */}
-            {(currentStage === "WHITELIST") && !isMobile && (
+            {/* Show project wallet status on desktop */}
+            {isProjectWallet && !isMobile && currentStage === "WHITELIST" && (
+                <div className="mint-section">
+                    <div className="mint-label">Status:</div>
+                    <div className="mint-value">Project Wallet (Free Mint)</div>
+                </div>
+            )}
+            
+            {/* Only show these sections on desktop and for non-project wallets */}
+            {(currentStage === "WHITELIST") && !isMobile && !isProjectWallet && (
                 <div className="mint-section">
                     <div className="mint-label">Whitelist Status:</div>
                     <div className="mint-value">
@@ -374,14 +418,14 @@ function MobileOptimizedMintingOverlay() {
                 </div>
             )}
             
-            {isWhitelisted && !isMobile && (
+            {isWhitelisted && !isMobile && !isProjectWallet && (
                 <div className="mint-section">
                     <div className="mint-label">Your Mints:</div>
                     <div className="mint-value">{userMintCount} / {MAX_WHITELIST_MINTS}</div>
                 </div>
             )}
             
-            {currentStage === "WHITELIST" && isWhitelisted && !isMobile && (
+            {currentStage === "WHITELIST" && isWhitelisted && !isMobile && !isProjectWallet && (
                 <div className="mint-section">
                     <div className="mint-label">Free Mint:</div>
                     <div className="mint-value">
@@ -412,8 +456,8 @@ function MobileOptimizedMintingOverlay() {
                     !connected || 
                     !account || 
                     !contractVerified || 
-                    (currentStage === "WHITELIST" && !isWhitelisted) ||
-                    (currentStage === "WHITELIST" && userMintCount >= MAX_WHITELIST_MINTS) ||
+                    (currentStage === "WHITELIST" && !isWhitelisted && !isProjectWallet) ||
+                    (currentStage === "WHITELIST" && !isProjectWallet && userMintCount >= MAX_WHITELIST_MINTS) ||
                     currentStage === "NOT LAUNCHED YET"
                 }
             >
