@@ -292,7 +292,8 @@ function MobileOptimizedMintingOverlay() {
         
         // Check if user is trying to mint more than one NFT with free mint
         // Project wallet can mint multiple NFTs for free during whitelist
-        if (currentStage === "WHITELIST" && quantity > 1 && !isProjectWallet) {
+        // Only apply this restriction if the user has not used their free mint yet
+        if (currentStage === "WHITELIST" && quantity > 1 && !isProjectWallet && !hasUsedFreeMint) {
             setError("You can only mint one NFT for free. Please adjust your quantity to 1.");
             return;
         }
